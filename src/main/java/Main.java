@@ -1,5 +1,6 @@
 import com.mongodb.client.MongoClients;
 import listeners.CadastroDeSessaoListener;
+import listeners.MostrarMinhasSessoesMestreListener;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
@@ -18,7 +19,9 @@ public class Main {
 
         final var jda = JDABuilder
                 .createDefault(System.getenv(DISCORD_ENV_TOKEN))
-                .addEventListeners(new CadastroDeSessaoListener(sessaoService))
+                .addEventListeners(
+                        new CadastroDeSessaoListener(sessaoService),
+                        new MostrarMinhasSessoesMestreListener(sessaoService))
                 .build();
 
         jda.updateCommands()
@@ -27,6 +30,8 @@ public class Main {
                                 .setGuildOnly(true)
                                 .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
                         Commands.slash("cadastrar-horario", "Usado para os mestres cadastrarem horários")
+                                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_PERMISSIONS)),
+                        Commands.slash("mostrar-meus-horarios", "Usado para os mestres verem seus hórarios de sessão cadastrados")
                                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_PERMISSIONS)))
                 .queue();
     }

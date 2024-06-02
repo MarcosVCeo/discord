@@ -6,6 +6,7 @@ import repository.SessaoRepository;
 import service.exception.SessaoJaCadastradaException;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public class SessaoService {
@@ -32,5 +33,9 @@ public class SessaoService {
 
     public Optional<Sessao> buscarSessao(Long idMestre, LocalDate data, Periodo perido) {
         return sessaoRepository.buscarSessao(idMestre, data, perido);
+    }
+
+    public List<Sessao> buscarSessoes(Long idMestre, LocalDate dataInicio, LocalDate dataFim) {
+        return sessaoRepository.buscarSessoes(idMestre, dataInicio, dataFim);
     }
 }
