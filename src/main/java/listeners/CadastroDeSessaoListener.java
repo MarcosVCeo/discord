@@ -1,5 +1,7 @@
 package listeners;
 
+import model.Periodo;
+import model.Sessao;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -9,6 +11,8 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import service.SessaoService;
+import service.exception.SessaoJaCadastradaException;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -17,6 +21,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class CadastroDeSessaoListener extends ListenerAdapter {
+
+    private final SessaoService sessaoService;
+
+    public CadastroDeSessaoListener(SessaoService sessaoService) {
+        this.sessaoService = sessaoService;
+    }
 
     private final Map<String, LocalDate> cache = new ConcurrentHashMap<>();
 
@@ -65,9 +75,9 @@ public class CadastroDeSessaoListener extends ListenerAdapter {
             cache.put(userId, data);
 
             var selectMenuPeriodo = StringSelectMenu.create("selecao-periodo")
-                    .addOption("Manhã", "manha")
-                    .addOption("Tarde", "tarde")
-                    .addOption("Noite", "noite")
+                    .addOption("Manhã", "Manhã")
+                    .addOption("Tarde", "Tarde")
+                    .addOption("Noite", "Noite")
                     .build();
 
             event
@@ -80,16 +90,19 @@ public class CadastroDeSessaoListener extends ListenerAdapter {
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (event.getComponentId().equals("selecao-periodo")) {
-            var periodo = event.getInteraction().getValues().getFirst();
+            var periodo = Periodo.get(event.getInteraction().getValues().getFirst());
             var userId = event.getInteraction().getUser().getId();
-            var username = event.getJDA().getUserById(userId).getName();
+            var userIdInt = Long.valueOf(userId);
             var data = cache.get(userId);
+
             cache.remove(userId);
 
-            var mensagem = String.format("Foi selecionado %s - %s - por : %s", data.toString(), periodo, username);
-
-
-            event.reply(mensagem).setEphemeral(true).queue();
+            try {
+                sessaoService.agendarSessao(new Sessao(data, userIdInt, periodo));
+                event.reply("Sessão cadastrada com sucesso !!!").setEphemeral(true).queue();
+            } catch (SessaoJaCadastradaException e) {
+                event.reply("Você já possui sessão marcada nesse horário.").setEphemeral(true).queue();
+            }
         }
     }
 }
