@@ -1,5 +1,6 @@
 package listeners;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import service.SessaoService;
@@ -26,7 +27,7 @@ public class MostrarMinhasSessoesMestreListener extends ListenerAdapter {
             var sessoes = sessaoService.buscarSessoes(idMestre, dataAtual, dataAtual.plusDays(7));
 
             if (sessoes.isEmpty()) {
-                event.reply("Você não possui sessoes cadastradas no periodo de uma semana");
+                event.reply("Você não possui sessoes cadastradas no periodo de uma semana").queue();
             } else {
                 var sbMensagem = new StringBuilder();
 
@@ -40,10 +41,10 @@ public class MostrarMinhasSessoesMestreListener extends ListenerAdapter {
                             .append(" | jogadores : { ");
 
                     if (!sessao.getJogadoresIds().isEmpty()) {
-                        sessao
-                                .getJogadoresIds()
+
+                        sessao.getJogadoresIds()
                                 .stream()
-                                .map(idJogador -> event.getJDA().getUserById(idJogador).getName())
+                                .map(id -> event.getJDA().retrieveUserById(id).map(User::getEffectiveName).complete())
                                 .forEach(nome -> sbMensagem.append(nome).append(" "));
                     }
 

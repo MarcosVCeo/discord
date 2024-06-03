@@ -1,11 +1,14 @@
 package model;
 
+import org.bson.types.ObjectId;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Sessao {
 
+    private ObjectId id;
     private LocalDate data;
     private Long mestreId;
     private final List<Long> jogadoresIds;
@@ -18,11 +21,16 @@ public class Sessao {
         this.jogadoresIds = new ArrayList<>();
     }
 
-    public Sessao(LocalDate data, Long mestreId, List<Long> jogadoresIds, Periodo periodo) {
+    public Sessao(ObjectId id, LocalDate data, Long mestreId, List<Long> jogadoresIds, Periodo periodo) {
+        this.id = id;
         this.data = data;
         this.mestreId = mestreId;
         this.jogadoresIds = jogadoresIds;
         this.periodo = periodo;
+    }
+
+    public ObjectId getId() {
+        return id;
     }
 
     public LocalDate getData() {
@@ -39,5 +47,9 @@ public class Sessao {
 
     public Periodo getPeriodo() {
         return periodo;
+    }
+
+    public void adicionarJogador(Long idJogador) {
+        this.jogadoresIds.add(idJogador);
     }
 }
