@@ -79,7 +79,7 @@ public class MarcarSessaoListener extends ListenerAdapter {
             var sessoes = sessaoService.buscarSessoesLivres(idMestre, dataAtual, dataAtual.plusDays(7));
 
             if (sessoes.isEmpty()) {
-                event.reply("Esse mestre não possui sessões livres cadastradas").queue();
+                event.reply("Esse mestre não possui sessões livres cadastradas").setEphemeral(true).queue();
             } else {
                 var componentesBotoesSelecaoSessao = sessoes
                         .stream()
